@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   ResearchOpportunity,
   OpportunityFormData,
@@ -8,22 +15,23 @@ import {
   OpportunityStatus,
 } from "@/types/opportunity";
 import { INITIAL_OPPORTUNITIES } from "@/lib/mock-data";
+import { api, ApiError } from "@/lib/api";
 import { toast } from "sonner";
-
-const STORAGE_KEY = "fast_university_research_opportunities_v1";
 
 interface OpportunitiesContextType {
   opportunities: ResearchOpportunity[];
   filteredOpportunities: ResearchOpportunity[];
   isLoading: boolean;
+  error: string | null;
   filters: FilterState;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
   resetFilters: () => void;
-  createOpportunity: (data: OpportunityFormData) => void;
-  updateOpportunity: (id: string, data: OpportunityFormData) => void;
-  toggleStatus: (id: string) => void;
-  deleteOpportunity: (id: string) => void;
-  resetToDefaultData: () => void;
+  createOpportunity: (data: OpportunityFormData) => Promise<boolean>;
+  updateOpportunity: (id: string, data: OpportunityFormData) => Promise<boolean>;
+  toggleStatus: (id: string) => Promise<boolean>;
+  deleteOpportunity: (id: string) => Promise<boolean>;
+  resetToDefaultData: () => Promise<void>;
+  refreshOpportunities: () => Promise<void>;
   stats: {
     total: number;
     open: number;
@@ -41,107 +49,195 @@ const defaultFilters: FilterState = {
   sortBy: "deadline-asc",
 };
 
-const OpportunitiesContext = createContext<OpportunitiesContextType | undefined>(undefined);
+const OpportunitiesContext = createContext<OpportunitiesContextType | undefined>(
+  undefined
+);
 
 export function OpportunitiesProvider({ children }: { children: React.ReactNode }) {
   const [opportunities, setOpportunities] = useState<ResearchOpportunity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
 
-  // Load from localStorage or mock data
-  useEffect(() => {
+  // Load opportunities from real PostgreSQL database via FastAPI
+  const loadOpportunities = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setOpportunities(parsed);
-          setIsLoading(false);
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to read from localStorage:", e);
+      const data = await api.getOpportunities();
+      setOpportunities(data);
+    } catch (err) {
+      const msg =
+        err instanceof ApiError
+          ? err.message
+          : "Could not connect to FastAPI backend (http://127.0.0.1:8000).";
+      setError(msg);
+      toast.error("Database Connection Error", {
+        description: msg,
+      });
+    } finally {
+      setIsLoading(false);
     }
-    // Fallback to initial mock data
-    setOpportunities(INITIAL_OPPORTUNITIES);
-    setIsLoading(false);
   }, []);
 
-  // Save to localStorage whenever opportunities change
-  const saveOpportunities = (updated: ResearchOpportunity[]) => {
-    setOpportunities(updated);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } catch (e) {
-      console.error("Failed to persist opportunities to localStorage:", e);
-    }
-  };
+  useEffect(() => {
+    let ignore = false;
+    api
+      .getOpportunities()
+      .then((data) => {
+        if (!ignore) {
+          setOpportunities(data);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          const msg =
+            err instanceof ApiError
+              ? err.message
+              : "Could not connect to FastAPI backend (http://127.0.0.1:8000).";
+          setError(msg);
+          setIsLoading(false);
+          toast.error("Database Connection Error", {
+            description: msg,
+          });
+        }
+      });
 
-  const createOpportunity = (formData: OpportunityFormData) => {
-    const newOpportunity: ResearchOpportunity = {
-      ...formData,
-      id: `fast-res-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
-      postedDate: new Date().toISOString().split("T")[0],
+    return () => {
+      ignore = true;
     };
-    const updated = [newOpportunity, ...opportunities];
-    saveOpportunities(updated);
-    toast.success("Opportunity Posted Successfully", {
-      description: `"${newOpportunity.title}" is now active in the portal.`,
-    });
-  };
+  }, []);
 
-  const updateOpportunity = (id: string, formData: OpportunityFormData) => {
-    const updated = opportunities.map((opp) =>
-      opp.id === id
-        ? {
-            ...opp,
-            ...formData,
-          }
-        : opp
-    );
-    saveOpportunities(updated);
-    toast.success("Opportunity Updated", {
-      description: `Changes to "${formData.title}" have been saved.`,
-    });
-  };
-
-  const toggleStatus = (id: string) => {
-    const target = opportunities.find((o) => o.id === id);
-    if (!target) return;
-
-    const newStatus: OpportunityStatus = target.status === "Open" ? "Closed" : "Open";
-    const updated = opportunities.map((opp) =>
-      opp.id === id ? { ...opp, status: newStatus } : opp
-    );
-    saveOpportunities(updated);
-
-    if (newStatus === "Closed") {
-      toast.info("Opportunity Closed", {
-        description: `Applications for "${target.title}" are now closed.`,
+  const createOpportunity = async (
+    formData: OpportunityFormData
+  ): Promise<boolean> => {
+    try {
+      const created = await api.createOpportunity(formData);
+      setOpportunities((prev) => [created, ...prev]);
+      toast.success("Opportunity Posted Successfully", {
+        description: `"${created.title}" was saved to PostgreSQL.`,
       });
-    } else {
-      toast.success("Opportunity Reopened", {
-        description: `"${target.title}" is now open for applications.`,
+      return true;
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Failed to create opportunity.";
+      toast.error("Failed to Post Opportunity", {
+        description: msg,
       });
+      return false;
     }
   };
 
-  const deleteOpportunity = (id: string) => {
-    const target = opportunities.find((o) => o.id === id);
-    const updated = opportunities.filter((o) => o.id !== id);
-    saveOpportunities(updated);
-    toast.success("Opportunity Removed", {
-      description: target ? `"${target.title}" was deleted.` : "Item removed.",
-    });
+  const updateOpportunity = async (
+    id: string,
+    formData: OpportunityFormData
+  ): Promise<boolean> => {
+    try {
+      const updated = await api.updateOpportunity(id, formData);
+      setOpportunities((prev) =>
+        prev.map((opp) => (opp.id === id ? updated : opp))
+      );
+      toast.success("Opportunity Updated", {
+        description: `Changes to "${updated.title}" were saved to PostgreSQL.`,
+      });
+      return true;
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Failed to update opportunity.";
+      toast.error("Failed to Update Opportunity", {
+        description: msg,
+      });
+      return false;
+    }
   };
 
-  const resetToDefaultData = () => {
-    saveOpportunities(INITIAL_OPPORTUNITIES);
-    setFilters(defaultFilters);
-    toast.success("Sample Data Restored", {
-      description: "Default FAST University research opportunities have been restored.",
-    });
+  const toggleStatus = async (id: string): Promise<boolean> => {
+    const target = opportunities.find((o) => o.id === id);
+    if (!target) return false;
+
+    const newStatus: OpportunityStatus =
+      target.status === "Open" ? "Closed" : "Open";
+
+    try {
+      const updated = await api.updateOpportunity(id, {
+        status: newStatus,
+      });
+      setOpportunities((prev) =>
+        prev.map((opp) => (opp.id === id ? updated : opp))
+      );
+
+      if (newStatus === "Closed") {
+        toast.info("Opportunity Closed", {
+          description: `Applications for "${target.title}" are now closed.`,
+        });
+      } else {
+        toast.success("Opportunity Reopened", {
+          description: `"${target.title}" is now open for applications.`,
+        });
+      }
+      return true;
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Failed to toggle status.";
+      toast.error("Status Update Failed", {
+        description: msg,
+      });
+      return false;
+    }
+  };
+
+  const deleteOpportunity = async (id: string): Promise<boolean> => {
+    const target = opportunities.find((o) => o.id === id);
+    try {
+      await api.deleteOpportunity(id);
+      setOpportunities((prev) => prev.filter((o) => o.id !== id));
+      toast.success("Opportunity Removed", {
+        description: target ? `"${target.title}" was deleted from PostgreSQL.` : "Item deleted.",
+      });
+      return true;
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Failed to delete opportunity.";
+      toast.error("Deletion Failed", {
+        description: msg,
+      });
+      return false;
+    }
+  };
+
+  const resetToDefaultData = async () => {
+    try {
+      setIsLoading(true);
+      // Seed default sample data into the database
+      for (const item of INITIAL_OPPORTUNITIES) {
+        await api.createOpportunity({
+          title: item.title,
+          department: item.department,
+          facultyName: item.facultyName,
+          facultyEmail: item.facultyEmail,
+          facultyRole: item.facultyRole,
+          researchArea: item.researchArea,
+          description: item.description,
+          requiredSkills: item.requiredSkills,
+          availablePositions: item.availablePositions,
+          applicationDeadline: item.applicationDeadline,
+          status: item.status,
+          location: item.location,
+          stipend: item.stipend,
+          eligibility: item.eligibility,
+          prerequisites: item.prerequisites,
+        });
+      }
+      await loadOpportunities();
+      setFilters(defaultFilters);
+      toast.success("Sample Data Seeded", {
+        description: `${INITIAL_OPPORTUNITIES.length} research opportunities seeded into PostgreSQL database.`,
+      });
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Failed to seed sample data.";
+      toast.error("Seeding Failed", {
+        description: msg,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetFilters = () => {
@@ -173,7 +269,9 @@ export function OpportunitiesProvider({ children }: { children: React.ReactNode 
           const matchTitle = opp.title.toLowerCase().includes(q);
           const matchFaculty = opp.facultyName.toLowerCase().includes(q);
           const matchArea = opp.researchArea.toLowerCase().includes(q);
-          const matchSkills = opp.requiredSkills.some((s) => s.toLowerCase().includes(q));
+          const matchSkills = (opp.requiredSkills || []).some((s) =>
+            s.toLowerCase().includes(q)
+          );
           const matchDesc = opp.description.toLowerCase().includes(q);
           if (!matchTitle && !matchFaculty && !matchArea && !matchSkills && !matchDesc) {
             return false;
@@ -184,13 +282,21 @@ export function OpportunitiesProvider({ children }: { children: React.ReactNode 
       })
       .sort((a, b) => {
         if (filters.sortBy === "deadline-asc") {
-          return new Date(a.applicationDeadline).getTime() - new Date(b.applicationDeadline).getTime();
+          return (
+            new Date(a.applicationDeadline).getTime() -
+            new Date(b.applicationDeadline).getTime()
+          );
         }
         if (filters.sortBy === "deadline-desc") {
-          return new Date(b.applicationDeadline).getTime() - new Date(a.applicationDeadline).getTime();
+          return (
+            new Date(b.applicationDeadline).getTime() -
+            new Date(a.applicationDeadline).getTime()
+          );
         }
         if (filters.sortBy === "newest") {
-          return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
+          return (
+            new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime()
+          );
         }
         if (filters.sortBy === "positions-desc") {
           return b.availablePositions - a.availablePositions;
@@ -225,6 +331,7 @@ export function OpportunitiesProvider({ children }: { children: React.ReactNode 
         opportunities,
         filteredOpportunities,
         isLoading,
+        error,
         filters,
         setFilters,
         resetFilters,
@@ -233,6 +340,7 @@ export function OpportunitiesProvider({ children }: { children: React.ReactNode 
         toggleStatus,
         deleteOpportunity,
         resetToDefaultData,
+        refreshOpportunities: loadOpportunities,
         stats,
       }}
     >

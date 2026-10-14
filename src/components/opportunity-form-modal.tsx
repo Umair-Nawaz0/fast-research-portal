@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import {
   ResearchOpportunity,
   OpportunityFormData,
@@ -19,7 +18,7 @@ import {
   OpportunityStatus,
 } from "@/types/opportunity";
 import { DEPARTMENTS, RESEARCH_AREAS } from "@/lib/mock-data";
-import { X, Plus, AlertCircle, Sparkles, Check, Loader2 } from "lucide-react";
+import { X, Plus, AlertCircle, Loader2 } from "lucide-react";
 
 interface OpportunityFormModalProps {
   isOpen: boolean;
@@ -71,9 +70,13 @@ export function OpportunityFormModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isEditMode = Boolean(initialData);
+  const [prevOpen, setPrevOpen] = useState(isOpen);
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
 
-  useEffect(() => {
+  // Synchronize form state when modal opens or initialData changes
+  if (isOpen !== prevOpen || initialData !== prevInitialData) {
+    setPrevOpen(isOpen);
+    setPrevInitialData(initialData);
     if (initialData) {
       setFormData({
         title: initialData.title,
@@ -94,7 +97,6 @@ export function OpportunityFormModal({
       });
       setErrors({});
     } else {
-      // Default future date for deadline (e.g. 30 days ahead)
       const future = new Date();
       future.setDate(future.getDate() + 30);
       const defaultDate = future.toISOString().split("T")[0];
@@ -105,7 +107,10 @@ export function OpportunityFormModal({
       });
       setErrors({});
     }
-  }, [initialData, isOpen]);
+  }
+
+  const isEditMode = Boolean(initialData);
+
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};

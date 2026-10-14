@@ -14,20 +14,25 @@ import { LoadingGrid, LoadingTable } from "@/components/loading-state";
 import { Footer } from "@/components/footer";
 import { useOpportunities } from "@/context/opportunities-context";
 import { ResearchOpportunity, OpportunityFormData } from "@/types/opportunity";
-import { Sparkles, GraduationCap, Network, ArrowRight } from "lucide-react";
+import { GraduationCap, ArrowRight, AlertCircle, RefreshCw } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+
 
 export default function HomePage() {
   const {
     filteredOpportunities,
     opportunities,
     isLoading,
+    error,
     filters,
     resetFilters,
     createOpportunity,
     updateOpportunity,
     toggleStatus,
     deleteOpportunity,
+    resetToDefaultData,
+    refreshOpportunities,
   } = useOpportunities();
 
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -66,17 +71,17 @@ export default function HomePage() {
     setIsDeleteOpen(true);
   };
 
-  const handleFormSubmit = (formData: OpportunityFormData) => {
+  const handleFormSubmit = async (formData: OpportunityFormData) => {
     if (editingOpportunity) {
-      updateOpportunity(editingOpportunity.id, formData);
+      await updateOpportunity(editingOpportunity.id, formData);
     } else {
-      createOpportunity(formData);
+      await createOpportunity(formData);
     }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deletingOpportunity) {
-      deleteOpportunity(deletingOpportunity.id);
+      await deleteOpportunity(deletingOpportunity.id);
       setDeletingOpportunity(null);
     }
   };
@@ -131,6 +136,28 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Database / Backend Connection Notice */}
+        {error && (
+          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-start sm:items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5 sm:mt-0" />
+              <div>
+                <p className="font-semibold text-sm">PostgreSQL Backend Connection Error</p>
+                <p className="text-xs text-red-700 mt-0.5">{error}</p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshOpportunities}
+              className="text-xs border-red-300 text-red-800 hover:bg-red-100 self-start sm:self-auto shrink-0"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              <span>Retry Connection</span>
+            </Button>
+          </div>
+        )}
+
         {/* Dashboard Aggregate Metric Cards */}
         <StatsCards />
 
@@ -150,6 +177,7 @@ export default function HomePage() {
               isFiltered={isFiltered}
               onResetFilters={resetFilters}
               onOpenCreate={handleOpenCreate}
+              onSeedSampleData={resetToDefaultData}
             />
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
