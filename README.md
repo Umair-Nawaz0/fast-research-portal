@@ -1,6 +1,14 @@
 # FAST University Research Opportunity Portal
 
+**Institution:** National University of Computer & Emerging Sciences (FAST-NUCES), Peshawar Campus  
+**Course:** Computer Networks (CN) — Assignment #01  
+**Program:** BS (CS 5C) — Semester Fall-2026  
+**Student Name:** Umair Nawaz  
+**GitHub Repository:** https://github.com/Umair-Nawaz0/fast-research-portal  
+**Postman Collection:** `backend/postman/University_Research_Opportunity_Portal.postman_collection.json`  
+
 A modern, full-stack, university-grade research opportunity portal developed for **FAST-NUCES**.
+
 
 The system connects undergraduate and graduate students directly with faculty-led research projects, laboratory assistantships, and Final Year Project (FYP) collaborations in Computer Networks, Distributed Systems, Cybersecurity, and AI.
 
