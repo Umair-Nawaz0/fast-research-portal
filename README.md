@@ -1,9 +1,12 @@
 # FAST University Research Opportunity Portal
 
-**Institution:** National University of Computer & Emerging Sciences (FAST-NUCES), Peshawar Campus  
-**Course:** Computer Networks (CN) — Assignment #01  
-**Program:** BS (CS 5C) — Semester Fall-2026  
 **Student Name:** Umair Nawaz  
+**Roll No:** P24-0590  
+**Program:** BS (CS 5C) — Semester Fall-2026  
+**Course:** Computer Networks (CN) — Assignment #01  
+**Institution:** National University of Computer & Emerging Sciences (FAST-NUCES), Peshawar Campus  
+
+
 **GitHub Repository:** https://github.com/Umair-Nawaz0/fast-research-portal  
 **Postman Collection:** `backend/postman/University_Research_Opportunity_Portal.postman_collection.json`  
 **Demonstration Video:** [`demonstration_video.mp4`](./demonstration_video.mp4) (Duration: 53.4s — per assignment requirement $\le$ 1 minute)  
