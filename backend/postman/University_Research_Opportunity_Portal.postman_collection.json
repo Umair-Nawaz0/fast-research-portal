@@ -1,0 +1,582 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "University Research Opportunity Portal API",
+    "description": "Complete Postman collection for verifying all 5 endpoints and edge cases for the University Research Opportunity Portal.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "opportunityId1",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "opportunityId2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "opportunityId3",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Database status is connected', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('ok');",
+              "    pm.expect(jsonData.database).to.eql('connected');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Create Opportunity 1 (SDN)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Software-Defined Networking (SDN) Flow Optimization for Data Centers\",\n  \"department\": \"Computer Networks & Security\",\n  \"faculty_name\": \"Dr. Tariq Mahmood\",\n  \"research_area\": \"Software-Defined Networking (SDN)\",\n  \"description\": \"Investigating intelligent routing policies using OpenFlow and P4 programmable switches to mitigate congestion in multi-tenant cloud data centers.\",\n  \"required_skills\": [\"Python\", \"Mininet\", \"OpenFlow\", \"Wireshark\"],\n  \"available_positions\": 3,\n  \"application_deadline\": \"2026-11-15\",\n  \"status\": \"Open\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Opportunity 1 created with valid ID', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('id');",
+              "    pm.expect(jsonData.title).to.include('Software-Defined Networking');",
+              "    pm.expect(jsonData.available_positions).to.eql(3);",
+              "    pm.collectionVariables.set('opportunityId1', jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Create Opportunity 2 (DDoS Detection)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Deep Learning-Based DDoS Attack Detection in High-Throughput 10Gbps Links\",\n  \"department\": \"Computer Networks & Security\",\n  \"faculty_name\": \"Dr. Ayesha Siddiqui\",\n  \"research_area\": \"Network Security & Intrusion Detection\",\n  \"description\": \"Real-time volumetric and application-layer DDoS attack detection using lightweight Transformer models deployed at the network edge.\",\n  \"required_skills\": [\"PyTorch\", \"DPDK\", \"eBPF\", \"Network Security\"],\n  \"available_positions\": 2,\n  \"application_deadline\": \"2026-11-20\",\n  \"status\": \"Open\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Opportunity 2 created with valid ID', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('id');",
+              "    pm.expect(jsonData.faculty_name).to.eql('Dr. Ayesha Siddiqui');",
+              "    pm.collectionVariables.set('opportunityId2', jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Create Opportunity 3 (Edge 5G/6G)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Multi-Access Edge Computing (MEC) Orchestration for Autonomous Vehicular Networks\",\n  \"department\": \"Computer Science\",\n  \"faculty_name\": \"Dr. Usman Tariq\",\n  \"research_area\": \"Edge Computing & 5G/6G Core\",\n  \"description\": \"Designing ultra-reliable low-latency communication (URLLC) offloading algorithms for autonomous vehicle telemetry and edge processing.\",\n  \"required_skills\": [\"Kubernetes\", \"C++\", \"Docker\", \"5G Core\", \"NS-3\"],\n  \"available_positions\": 4,\n  \"application_deadline\": \"2026-12-05\",\n  \"status\": \"Open\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Opportunity 3 created with valid ID', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('id');",
+              "    pm.expect(jsonData.available_positions).to.eql(4);",
+              "    pm.collectionVariables.set('opportunityId3', jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Retrieve All Opportunities",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns list containing at least 3 opportunities', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+              "    pm.expect(jsonData.length).to.be.at.least(3);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Retrieve One Opportunity by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/{{opportunityId1}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "{{opportunityId1}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns matching opportunity ID and details', function () {",
+              "    var jsonData = pm.response.json();",
+              "    var expectedId = Number(pm.collectionVariables.get('opportunityId1'));",
+              "    pm.expect(jsonData.id).to.eql(expectedId);",
+              "    pm.expect(jsonData.faculty_name).to.eql('Dr. Tariq Mahmood');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Update Existing Opportunity Details",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Advanced Software-Defined Networking (SDN) Flow Optimization v2\",\n  \"available_positions\": 5\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/{{opportunityId1}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "{{opportunityId1}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Opportunity details updated successfully', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.title).to.eql('Advanced Software-Defined Networking (SDN) Flow Optimization v2');",
+              "    pm.expect(jsonData.available_positions).to.eql(5);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Change Status from Open to Closed",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Closed\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/{{opportunityId1}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "{{opportunityId1}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Status updated to Closed', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('Closed');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Delete Opportunity 3",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/{{opportunityId3}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "{{opportunityId3}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Delete confirmation returned', function () {",
+              "    var jsonData = pm.response.json();",
+              "    var expectedId = Number(pm.collectionVariables.get('opportunityId3'));",
+              "    pm.expect(jsonData.id).to.eql(expectedId);",
+              "    pm.expect(jsonData.message).to.include('deleted successfully');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Request Deleted ID (Expect 404 Not Found)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/{{opportunityId3}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "{{opportunityId3}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test('Error detail indicates opportunity not found', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.detail.toLowerCase()).to.include('not found');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Missing ID on GET (Expect 404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/9999999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "9999999"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Missing ID on PUT (Expect 404)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Non-existent opportunity\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/9999999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "9999999"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Missing ID on DELETE (Expect 404)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities/9999999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities", "9999999"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Validation Error: Missing Required Fields (Expect 422)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Incomplete Opportunity\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 422 Unprocessable Entity', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "pm.test('Validation details returned', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('detail');",
+              "    pm.expect(Array.isArray(jsonData.detail)).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "14. Validation Error: Negative Available Positions (Expect 422)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Invalid Positions Opportunity\",\n  \"department\": \"Computer Science\",\n  \"faculty_name\": \"Dr. Valid Mentor\",\n  \"research_area\": \"AI & Data Science\",\n  \"description\": \"Valid description exceeding minimum character requirement.\",\n  \"required_skills\": [\"Python\"],\n  \"available_positions\": -5,\n  \"application_deadline\": \"2026-12-01\",\n  \"status\": \"Open\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 422 Unprocessable Entity', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "pm.test('Validation error specifies available_positions constraint', function () {",
+              "    var jsonData = pm.response.json();",
+              "    var fieldErrors = jsonData.detail.map(function(d) { return d.loc.join('.'); });",
+              "    pm.expect(fieldErrors.some(function(loc) { return loc.includes('available_positions'); })).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "15. Validation Error: Invalid Status Value (Expect 422)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Invalid Status Opportunity\",\n  \"department\": \"Computer Science\",\n  \"faculty_name\": \"Dr. Valid Mentor\",\n  \"research_area\": \"AI & Data Science\",\n  \"description\": \"Valid description exceeding minimum character requirement.\",\n  \"required_skills\": [\"Python\"],\n  \"available_positions\": 2,\n  \"application_deadline\": \"2026-12-01\",\n  \"status\": \"Archived\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/opportunities",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "opportunities"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 422 Unprocessable Entity', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "pm.test('Validation error specifies status must be Open or Closed', function () {",
+              "    var jsonData = pm.response.json();",
+              "    var statusError = jsonData.detail.find(function(d) { return d.loc.includes('status'); });",
+              "    pm.expect(statusError).to.not.be.undefined;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}
