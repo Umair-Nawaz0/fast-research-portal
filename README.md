@@ -44,7 +44,11 @@ fast-research-portal/
 │   ├── tests/
 │   │   ├── __init__.py
 │   │   └── test_api.py           # Pytest test suite for all endpoints
+│   ├── postman/
+│   │   ├── University_Research_Opportunity_Portal.postman_collection.json
+│   │   └── University_Research_Opportunity_Portal.postman_environment.json
 │   ├── .env                      # Local backend secrets (git-ignored)
+
 │   ├── .env.example              # Backend environment template
 │   ├── requirements.txt          # Python dependencies
 │   └── venv/                     # Python virtual environment
@@ -154,12 +158,20 @@ backend/venv/bin/uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --rel
 - Interactive Swagger UI: `http://127.0.0.1:8000/docs`
 - Health check: `http://127.0.0.1:8000/api/health`
 
-### 4. Run Backend Automated Tests
+### 4. Run Backend Automated Tests (Pytest)
 ```bash
 PYTHONPATH=. backend/venv/bin/pytest backend/tests/test_api.py -v
 ```
 
+### 5. Run Postman Collection Tests (Newman CLI or Desktop App)
+The repository includes a complete Postman test suite covering all 5 CRUD endpoints, health check, 404 handling, and validation errors:
+```bash
+npx newman run backend/postman/University_Research_Opportunity_Portal.postman_collection.json -e backend/postman/University_Research_Opportunity_Portal.postman_environment.json
+```
+*(Alternatively, import the two JSON files in `backend/postman/` into the Postman Desktop application to run tests interactively).*
+
 ---
+
 
 ## 💻 Frontend Setup & Execution (Next.js)
 
