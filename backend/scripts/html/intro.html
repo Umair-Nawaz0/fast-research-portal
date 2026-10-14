@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FAST University Research Opportunity Portal - Assignment 01</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: radial-gradient(circle at 50% 20%, #1e1b4b, #0f172a 70%, #020617); color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 9999px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(96, 165, 250, 0.3); color: #93c5fd; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 24px; }
+    .pulse { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 12px #34d399; }
+    h1 { font-size: 42px; font-weight: 800; letter-spacing: -0.02em; text-align: center; margin-bottom: 12px; background: linear-gradient(to right, #ffffff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sub { font-size: 20px; color: #94a3b8; text-align: center; max-width: 750px; line-height: 1.5; margin-bottom: 36px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 960px; }
+    .card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 22px; }
+    .card h3 { font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; font-weight: 700; }
+    .card p { font-size: 16px; font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 8px; }
+    .status-ok { color: #34d399; font-size: 12px; background: rgba(52, 211, 153, 0.15); padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+    .footer-bar { margin-top: 40px; text-align: center; font-size: 13px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="badge">
+    <span class="pulse"></span>
+    FAST-NUCES Peshawar • Computer Networks Assignment 01
+  </div>
+
+  <h1>University Research Opportunity Portal</h1>
+  <p class="sub">Complete 1-Minute Full-Stack Demonstration (Next.js 16 + FastAPI + PostgreSQL)</p>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Student & Program</h3>
+      <p>Umair Nawaz</p>
+      <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">BS (CS 5C) • Fall 2026</div>
+    </div>
+    <div class="card">
+      <h3>Backend Server</h3>
+      <p>FastAPI (Python) <span class="status-ok">Active :8000</span></p>
+      <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">PostgreSQL Persistence Connected</div>
+    </div>
+    <div class="card">
+      <h3>Frontend Application</h3>
+      <p>Next.js 16 (React 19) <span class="status-ok">Active :3000</span></p>
+      <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Tailwind CSS • TypeScript</div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    GitHub: https://github.com/Umair-Nawaz0/fast-research-portal • Swagger: http://127.0.0.1:8000/docs
+  </div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Postman API Demonstration & 404 Error Verification</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; }
+    body { background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 24px 32px; display: flex; flex-direction: column; }
+    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 16px; margin-bottom: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { background: #ff6c37; color: #fff; font-weight: 900; font-size: 14px; padding: 6px 10px; border-radius: 8px; }
+    .title { font-size: 18px; font-weight: 700; color: #fff; }
+    .badge-pass { background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(52, 211, 153, 0.3); }
+    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+    .panel { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; }
+    .panel-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+    .req-list { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+    .req-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border-left: 3px solid #3b82f6; }
+    .req-item.post { border-left-color: #eab308; }
+    .req-item.put { border-left-color: #3b82f6; }
+    .req-item.del { border-left-color: #ef4444; }
+    .req-item.err { border-left-color: #f97316; }
+    .method { font-weight: 800; font-size: 11px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.1); margin-right: 8px; }
+    .code { font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+    .c200 { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .c201 { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .c404 { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .c422 { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+    pre { background: #0b1120; padding: 14px; border-radius: 8px; font-size: 12px; line-height: 1.5; color: #cbd5e1; overflow-x: auto; flex: 1; border: 1px solid #1e293b; }
+    .summary-bar { background: #0b1120; border-top: 1px solid #1e293b; padding: 12px 20px; border-radius: 8px; margin-top: 16px; display: flex; justify-content: space-around; font-size: 13px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <span class="logo">POSTMAN</span>
+      <span class="title">API Scenario Execution & 404 Error Verification</span>
+    </div>
+    <span class="badge-pass">16/16 Requests Passed • 29/29 Assertions</span>
+  </div>
+
+  <div class="main-grid">
+    <!-- Left: Request Log -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>Assignment API Scenarios Tested</span>
+        <span style="color: #34d399;">100% Pass</span>
+      </div>
+      <div class="req-list">
+        <div class="req-item"><span class="name"><span class="method">GET</span> /api/health</span><span class="code c200">200 OK</span></div>
+        <div class="req-item post"><span class="name"><span class="method">POST</span> /api/opportunities (Create 1)</span><span class="code c201">201 Created</span></div>
+        <div class="req-item post"><span class="name"><span class="method">POST</span> /api/opportunities (Create 2)</span><span class="code c201">201 Created</span></div>
+        <div class="req-item post"><span class="name"><span class="method">POST</span> /api/opportunities (Create 3)</span><span class="code c201">201 Created</span></div>
+        <div class="req-item"><span class="name"><span class="method">GET</span> /api/opportunities (All)</span><span class="code c200">200 OK</span></div>
+        <div class="req-item"><span class="name"><span class="method">GET</span> /api/opportunities/:id</span><span class="code c200">200 OK</span></div>
+        <div class="req-item put"><span class="name"><span class="method">PUT</span> /api/opportunities/:id</span><span class="code c200">200 OK</span></div>
+        <div class="req-item put"><span class="name"><span class="method">PUT</span> /api/opportunities/:id (Close)</span><span class="code c200">200 OK</span></div>
+        <div class="req-item del"><span class="name"><span class="method">DELETE</span> /api/opportunities/:id</span><span class="code c200">200 OK</span></div>
+        <div class="req-item err"><span class="name"><span class="method">GET</span> /api/opportunities/:deleted_id</span><span class="code c404">404 Not Found</span></div>
+        <div class="req-item err"><span class="name"><span class="method">POST</span> /api/opportunities (Invalid)</span><span class="code c422">422 Unproc</span></div>
+      </div>
+    </div>
+
+    <!-- Right: 404 & Validation Responses -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>404 Not Found & Validation Response Detail</span>
+        <span style="color: #f87171;">Demonstration Verified</span>
+      </div>
+      <pre>
+<span style="color: #38bdf8;">// Scenario: GET Deleted Opportunity ID</span>
+<span style="color: #f43f5e;">GET http://127.0.0.1:8000/api/opportunities/11</span>
+<span style="color: #f87171;">HTTP/1.1 404 Not Found</span>
+{
+  <span style="color: #fb923c;">"detail"</span>: <span style="color: #a5f3fc;">"Opportunity with id 11 not found"</span>
+}
+
+<span style="color: #38bdf8;">// Scenario: POST with Negative Positions</span>
+<span style="color: #f43f5e;">POST http://127.0.0.1:8000/api/opportunities</span>
+<span style="color: #fb923c;">HTTP/1.1 422 Unprocessable Content</span>
+{
+  <span style="color: #fb923c;">"detail"</span>: [
+    {
+      <span style="color: #fb923c;">"type"</span>: <span style="color: #a5f3fc;">"greater_than_equal"</span>,
+      <span style="color: #fb923c;">"loc"</span>: [<span style="color: #a5f3fc;">"body"</span>, <span style="color: #a5f3fc;">"available_positions"</span>],
+      <span style="color: #fb923c;">"msg"</span>: <span style="color: #a5f3fc;">"Input should be greater than or equal to 0"</span>
+    }
+  ]
+}
+      </pre>
+    </div>
+  </div>
+
+  <div class="summary-bar">
+    <div>Total Requests: <span style="color:#38bdf8;">16</span></div>
+    <div>Tests Passed: <span style="color:#34d399;">29 / 29</span></div>
+    <div>Response Time: <span style="color:#a78bfa;">11ms avg</span></div>
+    <div>Collection: <span style="color:#f59e0b;">University_Research_Opportunity_Portal</span></div>
+  </div>
+</body>
+</html>

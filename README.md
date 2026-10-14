@@ -6,6 +6,8 @@
 **Student Name:** Umair Nawaz  
 **GitHub Repository:** https://github.com/Umair-Nawaz0/fast-research-portal  
 **Postman Collection:** `backend/postman/University_Research_Opportunity_Portal.postman_collection.json`  
+**Demonstration Video:** [`demonstration_video.mp4`](./demonstration_video.mp4) (Duration: 53.4s — per assignment requirement $\le$ 1 minute)  
+
 
 A modern, full-stack, university-grade research opportunity portal developed for **FAST-NUCES**.
 
